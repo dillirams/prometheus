@@ -7,11 +7,24 @@ const requestCounter=new client.Counter({
     labelNames:['method','route','status_code']
 })
 
+const activeRequestGauge=new client.Gauge({
+    name:"active_request",
+    help:"active request help"
+})
+
+const httpRequestDuration=new client.Histogram({
+    name:"http_request_duration_in_ms",
+    help:"http_duration_helper_duration",
+    labelNames:['method','route','status_code'],
+    buckets:[0.1,1,5,15,50,100,500,1000,1500,2000]
+})
+
 export function middleware(req:Request, res:Response, next:NextFunction){
     const startTime=Date.now();
 
-    const routePath =
-      req.route && req.route.path ? req.route.path : req.originalUrl;
+    activeRequestGauge.inc();
+
+    const routePath =req.route && req.route.path ? req.route.path : req.originalUrl;
 
     const statusCode = res.statusCode ? res.statusCode.toString() : "unknown";
 
@@ -25,6 +38,14 @@ export function middleware(req:Request, res:Response, next:NextFunction){
         route:routePath,
         status_code:statusCode
     })
+    activeRequestGauge.dec();
+
+    httpRequestDuration.observe({
+        method:req.method,
+        route:routePath,
+        status_code:statusCode
+    },finishTime-startTime)
+
     })
 
     next();

@@ -13,15 +13,11 @@ app.get("/user",(req,res)=>{
      })
 })
 
-app.get("/cpu",(req,res)=>{
-    let sum=0
-    for(let i=0;i<100000;i++){
-        let adder=Math.floor(Math.random()*10)
-        sum=sum+adder
-    }
-    console.log(sum)
+app.get("/cpu",async(req,res)=>{
+    
+    await new Promise((e)=>setTimeout(e,1000));
     res.status(200).json({
-        sum:sum
+        name:"dilliram"
     })
 })
 app.get('/metrics', async (req, res) => {
