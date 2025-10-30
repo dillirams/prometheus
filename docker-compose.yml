@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  node_app: 
+   build: 
+    context: .
+    dockerfile: ./docker/Dockerfile.yml
+   ports:
+     - "3000:3000"
+   networks:
+     - prometherus_network 
+
+  prometheus:
+   image: prom/prometheus:latest
+   volumes:
+     - ./:/etc/prometheus
+   ports:
+       - "9090:9090"
+   networks:
+        - prometherus_network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    networks:
+        - prometherus_network
+    environment:
+         - GF_SECURITY_ADMIN_PASSWORD=admin
+
+
+networks:
+   prometherus_network:
+
+
+
